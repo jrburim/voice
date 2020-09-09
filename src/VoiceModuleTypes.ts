@@ -31,6 +31,12 @@ export type SpeechStartEvent = {
   error?: boolean;
 };
 
+export type SpeechStartOptions = {
+  sourceURL?: string;
+  partialResults?: boolean /* Default false */;
+  [key: string]: any;
+};
+
 export type SpeechRecognizedEvent = {
   isFinal?: boolean;
 };

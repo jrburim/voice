@@ -9,6 +9,7 @@ import {
   SpeechStartEvent,
   SpeechEndEvent,
   SpeechVolumeChangeEvent,
+  SpeechStartOptions,
 } from './VoiceModuleTypes';
 
 const Voice = NativeModules.Voice as VoiceModule;
@@ -66,7 +67,7 @@ class RCTVoice {
     });
   }
 
-  start(locale: any, options = {}) {
+  start(locale: any, options: SpeechStartOptions = {}) {
     if (!this._loaded && !this._listeners && voiceEmitter !== null) {
       this._listeners = (Object.keys(this._events) as SpeechEvent[]).map(
         (key: SpeechEvent) => voiceEmitter.addListener(key, this._events[key]),
@@ -96,7 +97,7 @@ class RCTVoice {
           callback,
         );
       } else {
-        Voice.startSpeech(locale, callback);
+        Voice.startSpeech(locale, options, callback);
       }
     });
   }
