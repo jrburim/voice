@@ -247,7 +247,8 @@
                 [segmentsDics addObject:@{ @"value"    : [segment substring],
                                                 @"alternatives"    : [segment alternativeSubstrings],
                                                 @"timetamp" : [self stringFromTimeInterval:[segment timestamp]],
-                                                @"confidence"    : [NSNumber numberWithFloat:[segment confidence]] 
+                                                @"confidence"    : [NSNumber numberWithFloat:[segment confidence]],
+                                                @"duration"    : [NSNumber numberWithFloat:[segment duration]]  
                 }];
             }
         }        
