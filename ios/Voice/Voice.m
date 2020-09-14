@@ -240,19 +240,26 @@
         for (SFTranscription* transcription in result.transcriptions) {
             [transcriptionDics addObject:transcription.formattedString];
         }
-
+        
         NSMutableArray* segmentsDics = [NSMutableArray new];
         if (isFinal || self.recognitionTask.isCancelled) {
             for (SFTranscriptionSegment * segment in [result.bestTranscription segments]) {
                 [segmentsDics addObject:@{ @"value"    : [segment substring],
-                                                @"alternatives"    : [segment alternativeSubstrings],
-                                                @"timetamp" : [self stringFromTimeInterval:[segment timestamp]],
-                                                @"confidence"    : [NSNumber numberWithFloat:[segment confidence]],
-                                                @"duration"    : [NSNumber numberWithFloat:[segment duration]]  
+                                           @"alternatives"    : [segment alternativeSubstrings],
+                                           @"timestamp" : [self stringFromTimeInterval:[segment timestamp]],
+                                           @"confidence"    : [NSNumber numberWithFloat:[segment confidence]],
+                                           @"duration"    : [NSNumber numberWithFloat:[segment duration]]  
                 }];
-            }
-        }        
-        [self sendResult :nil :result.bestTranscription.formattedString :transcriptionDics :segmentsDics :[NSNumber numberWithBool:isFinal]];
+            }            
+        }    
+
+        NSDictionary *recognitionInfo = @{
+            @"segments" : segmentsDics,
+            @"sourceURL": [options objectForKey:@"sourceURL"],
+            @"isFinal"  : [NSNumber numberWithBool:isFinal]
+        };
+
+        [self sendResult :nil :result.bestTranscription.formattedString :transcriptionDics :recognitionInfo :[NSNumber numberWithBool:isFinal]];
         
         if (isFinal || self.recognitionTask.isCancelled) {
             [self sendEventWithName:@"onSpeechEnd" body:nil];
@@ -351,15 +358,15 @@
              ];
 }
 
-- (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSArray*)segments :(NSNumber*)isFinal {
+- (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSDictionary*)recognitionInfo :(NSNumber*)isFinal {
     if (error != nil) {
         [self sendEventWithName:@"onSpeechError" body:@{@"error": error}];
     }
     if (bestTranscription != nil) {
-        [self sendEventWithName:@"onSpeechResults" body:@{@"value":@[bestTranscription], @"segments":segments}];
+        [self sendEventWithName:@"onSpeechResults" body:@{@"value":@[bestTranscription], @"recognitionInfo":recognitionInfo}];
     }
     if (transcriptions != nil) {
-        [self sendEventWithName:@"onSpeechPartialResults" body:@{@"value":transcriptions}];
+        [self sendEventWithName:@"onSpeechPartialResults" body:@{@"value":transcriptions, @"recognitionInfo":recognitionInfo}];
     }
     if (isFinal != nil) {
         [self sendEventWithName:@"onSpeechRecognized" body: @{@"isFinal": isFinal}];
