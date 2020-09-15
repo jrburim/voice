@@ -246,7 +246,7 @@
             for (SFTranscriptionSegment * segment in [result.bestTranscription segments]) {
                 [segmentsDics addObject:@{ @"value"    : [segment substring],
                                            @"alternatives"    : [segment alternativeSubstrings],
-                                           @"timestamp" : [self stringFromTimeInterval:[segment timestamp]],
+                                           @"timestamp" : @([segment timestamp]),
                                            @"confidence"    : [NSNumber numberWithFloat:[segment confidence]],
                                            @"duration"    : [NSNumber numberWithFloat:[segment duration]]  
                 }];
@@ -262,7 +262,7 @@
         [self sendResult :nil :result.bestTranscription.formattedString :transcriptionDics :recognitionInfo :[NSNumber numberWithBool:isFinal]];
         
         if (isFinal || self.recognitionTask.isCancelled) {
-            [self sendEventWithName:@"onSpeechEnd" body:nil];
+            [self sendEventWithName:@"onSpeechEnd" body:recognitionInfo];
             if (!self.continuous) {
                 [self teardown];
             }
@@ -360,7 +360,7 @@
 
 - (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSDictionary*)recognitionInfo :(NSNumber*)isFinal {
     if (error != nil) {
-        [self sendEventWithName:@"onSpeechError" body:@{@"error": error}];
+        [self sendEventWithName:@"onSpeechError" body:@{@"error": error, @"recognitionInfo":recognitionInfo}];
     }
     if (bestTranscription != nil) {
         [self sendEventWithName:@"onSpeechResults" body:@{@"value":@[bestTranscription], @"recognitionInfo":recognitionInfo}];
@@ -369,7 +369,7 @@
         [self sendEventWithName:@"onSpeechPartialResults" body:@{@"value":transcriptions, @"recognitionInfo":recognitionInfo}];
     }
     if (isFinal != nil) {
-        [self sendEventWithName:@"onSpeechRecognized" body: @{@"isFinal": isFinal}];
+        [self sendEventWithName:@"onSpeechRecognized" body: @{@"isFinal": isFinal, @"recognitionInfo":recognitionInfo}];
     }
 }
 
