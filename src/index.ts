@@ -10,11 +10,12 @@ import {
   SpeechEndEvent,
   SpeechVolumeChangeEvent,
   SpeechStartOptions,
+  SupportedLanguagesType,
 } from './VoiceModuleTypes';
 
 const Voice = NativeModules.Voice as VoiceModule;
 
-// NativeEventEmitter is only availabe on React Native platforms, so this conditional is used to avoid import conflicts in the browser/server
+// NativeEventEmitter is only available on React Native platforms, so this conditional is used to avoid import conflicts in the browser/server
 const voiceEmitter =
   Platform.OS !== 'web' ? new NativeEventEmitter(Voice) : null;
 type SpeechEvent = keyof SpeechEvents;
@@ -159,6 +160,14 @@ class RCTVoice {
   isRecognizing(): Promise<0 | 1> {
     return new Promise(resolve => {
       Voice.isRecognizing((isRecognizing: 0 | 1) => resolve(isRecognizing));
+    });
+  }
+
+  supportedLanguages(): Promise<SupportedLanguagesType> {
+    return new Promise(resolve => {
+      Voice.supportedLanguages((locales: SupportedLanguagesType) => {
+        resolve(locales);
+      });
     });
   }
 

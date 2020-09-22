@@ -380,6 +380,32 @@
     }
 }
 
+-(NSString *)firstLetterUpperCase:(NSString*)text {
+    return [NSString stringWithFormat:@"%@%@",[[text substringToIndex:1] uppercaseString],[text substringFromIndex:1] ];
+}
+
+RCT_EXPORT_METHOD(supportedLanguages:(RCTResponseSenderBlock)callback)
+{
+    NSString * currentLanguage = [[NSLocale preferredLanguages] firstObject];
+    NSLocale * currentLocale = [NSLocale localeWithLocaleIdentifier:currentLanguage];
+    
+    NSSortDescriptor * nameDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray * sortDescriptors = [NSArray arrayWithObject:nameDescriptor];
+   
+    NSMutableArray * result = [NSMutableArray new];
+
+    for(NSLocale * locale in [SFSpeechRecognizer supportedLocales]) {
+        [result addObject: @{
+            @"code": [locale localeIdentifier],
+            @"name": [self firstLetterUpperCase:[currentLocale localizedStringForLocaleIdentifier:[locale localeIdentifier]]]
+        }];
+    }
+    
+    NSArray *sortedResult = [result sortedArrayUsingDescriptors:sortDescriptors];
+    
+    callback(@[sortedResult]);
+}
+
 RCT_EXPORT_METHOD(stopSpeech:(RCTResponseSenderBlock)callback)
 {
     [self.recognitionTask finish];

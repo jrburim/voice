@@ -14,8 +14,11 @@ export type VoiceModule = {
   cancelSpeech: (callback: Callback) => void;
   isRecognizing: Function;
   isSpeechAvailable: Function;
+  supportedLanguages: Function;
 } & SpeechEvents &
   EventSubscriptionVendor;
+
+export type SupportedLanguagesType = Array<{ code: string; name: string }>;
 
 export type SpeechEvents = {
   onSpeechStart?: (e: SpeechStartEvent) => void;
