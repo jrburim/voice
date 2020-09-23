@@ -403,7 +403,7 @@ RCT_EXPORT_METHOD(supportedLanguages:(RCTResponseSenderBlock)callback)
     
     NSArray *sortedResult = [result sortedArrayUsingDescriptors:sortDescriptors];
     
-    callback(@[sortedResult]);
+    callback(@[@{@"supported": sortedResult, @"preferred": [NSLocale preferredLanguages]}]);
 }
 
 RCT_EXPORT_METHOD(stopSpeech:(RCTResponseSenderBlock)callback)

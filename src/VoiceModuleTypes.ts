@@ -18,7 +18,10 @@ export type VoiceModule = {
 } & SpeechEvents &
   EventSubscriptionVendor;
 
-export type SupportedLanguagesType = Array<{ code: string; name: string }>;
+export type SupportedLanguagesType = {
+  supported: Array<{ code: string; name: string }>;
+  preferred: string[];
+};
 
 export type SpeechEvents = {
   onSpeechStart?: (e: SpeechStartEvent) => void;
