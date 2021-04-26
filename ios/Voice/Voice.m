@@ -18,6 +18,7 @@
 @property (nonatomic) BOOL isTearingDown;
 @property (nonatomic) BOOL continuous;
 @property (nonatomic) BOOL audioSource;
+@property (nonatomic) NSString * audioSourceURL;
 
 @property (nonatomic) NSString *sessionId;
 /** Previous category the user was on prior to starting speech recognition */
@@ -140,6 +141,7 @@
 
 - (void) setupAndStartRecognizing:(NSString*)localeStr withOptions:(NSDictionary*)options {
     self.audioSource = [options objectForKey:@"sourceURL"] != nil;
+    self.audioSourceURL = [options objectForKey:@"sourceURL"];
 
     if (! self.audioSource) {
       self.audioSession = [AVAudioSession sharedInstance];
@@ -222,6 +224,7 @@
         }
         if (error != nil) {
             NSString *errorMessage = [NSString stringWithFormat:@"%ld/%@", error.code, [error localizedDescription]];
+            
             [self sendResult:@{@"code": @"recognition_fail", @"message": errorMessage} :nil :nil :nil :nil];
             [self teardown];
             return;
@@ -310,7 +313,7 @@
                 // Todo: write recording buffer to file (if user opts in)
                 if (self.recognitionRequest != nil) {
                     if ([self.recognitionRequest class] == [SFSpeechAudioBufferRecognitionRequest class])
-                    [(SFSpeechAudioBufferRecognitionRequest*)self.recognitionRequest appendAudioPCMBuffer:buffer];
+                        [(SFSpeechAudioBufferRecognitionRequest*)self.recognitionRequest appendAudioPCMBuffer:buffer];
                     //[self.recognitionRequest appendAudioPCMBuffer:buffer];
                 }
             }];
@@ -359,6 +362,12 @@
 }
 
 - (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSDictionary*)recognitionInfo :(NSNumber*)isFinal {
+    if (recognitionInfo == nil) {
+        recognitionInfo = @{
+            @"sourceURL": self.audioSourceURL,
+        };
+    }
+    
     if (error != nil) {
         [self sendEventWithName:@"onSpeechError" body:@{@"error": error, @"recognitionInfo":recognitionInfo}];
     }
