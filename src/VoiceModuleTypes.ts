@@ -55,7 +55,10 @@ export type SpeechErrorEvent = {
   error?: {
     code?: string;
     message?: string;
-  };
+  },
+  recognitionInfo: {
+      sourceURL: string
+  }
 };
 
 export type SpeechEndEvent = {
